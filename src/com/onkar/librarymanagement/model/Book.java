@@ -65,7 +65,5 @@ public class Book {
                 ", category='" + category + '\'' +
                 ", available=" + available +
                 '}';
-
     }
-
 }
