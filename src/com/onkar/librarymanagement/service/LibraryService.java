@@ -6,6 +6,7 @@ import com.onkar.librarymanagement.exception.BookNotFoundException;
 import com.onkar.librarymanagement.exception.UserNotFoundException;
 import com.onkar.librarymanagement.exception.BookNotAvailableException;
 import com.onkar.librarymanagement.exception.BookAlreadyIssuedException;
+import com.onkar.librarymanagement.exception.DuplicateBookException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,14 +14,31 @@ public class LibraryService {
     private List<Book> books = new ArrayList<>();
     private List<User> users = new ArrayList<>();
     private List<BorrowRecord> borrowRecords = new ArrayList<>();
-
     public void addBook(Book book) {
+
+        if (findBookByIdWithoutException(book.getId()) != null) {
+            throw new DuplicateBookException(
+                    "Book with ID " + book.getId() + " already exists"
+            );
+        }
+
         books.add(book);
     }
+    private Book findBookByIdWithoutException(int id) {
 
-    public void displayAllBooks() {
         for (Book book : books) {
-            System.out.println(book);
+            if (book.getId() == id) {
+                return book;
+            }
+        }
+
+        return null;
+    }
+    public void displayAvailableBooks() {
+        for (Book book : books) {
+            if (book.isAvailable()) {
+                System.out.println(book);
+            }
         }
     }
     public Book findBookById(int id) {
