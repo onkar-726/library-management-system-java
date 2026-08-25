@@ -2,6 +2,10 @@ package com.onkar.librarymanagement.service;
 import com.onkar.librarymanagement.model.User;
 import com.onkar.librarymanagement.model.Book;
 import com.onkar.librarymanagement.model.BorrowRecord;
+import com.onkar.librarymanagement.exception.BookNotFoundException;
+import com.onkar.librarymanagement.exception.UserNotFoundException;
+import com.onkar.librarymanagement.exception.BookNotAvailableException;
+import com.onkar.librarymanagement.exception.BookAlreadyIssuedException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,23 +23,28 @@ public class LibraryService {
             System.out.println(book);
         }
     }
-
     public Book findBookById(int id) {
         for (Book book : books) {
             if (book.getId() == id) {
                 return book;
             }
         }
-        return null;
+        throw new BookNotFoundException(
+                "Book with ID " + id + " not found"
+        );
     }
-
     public boolean removeBook(int id) {
+
         Book book = findBookById(id);
-        if (book != null) {
-            books.remove(book);
-            return true;
+
+        if (!book.isAvailable()) {
+            throw new BookAlreadyIssuedException(
+                    "Book with ID " + id + " is currently issued and cannot be removed"
+            );
         }
-        return false;
+
+        books.remove(book);
+        return true;
     }
 
     public void addUser(User user) {
@@ -55,19 +64,19 @@ public class LibraryService {
             }
         }
 
-        return null;
+        throw new UserNotFoundException(
+                "User with ID " + id + " not found"
+        );
     }
     public boolean issueBook(int bookId, int userId) {
 
         Book book = findBookById(bookId);
         User user = findUserById(userId);
 
-        if (book == null || user == null) {
-            return false;
-        }
-
         if (!book.isAvailable()) {
-            return false;
+            throw new BookNotAvailableException(
+                    "Book with ID " + bookId + " is already issued"
+            );
         }
 
         BorrowRecord record = new BorrowRecord(
@@ -88,10 +97,6 @@ public class LibraryService {
     public boolean returnBook(int bookId) {
 
         Book book = findBookById(bookId);
-
-        if (book == null) {
-            return false;
-        }
 
         for (BorrowRecord record : borrowRecords) {
 

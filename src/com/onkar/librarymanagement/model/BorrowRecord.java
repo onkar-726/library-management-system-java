@@ -11,8 +11,10 @@ public class BorrowRecord {
     private LocalDate dueDate;
     private LocalDate returnDate;
 
-    // Cleaned constructor assigning fields correctly
-    public BorrowRecord(int recordId, User user, Book book, LocalDate issueDate, LocalDate dueDate, LocalDate returnDate) {
+    public BorrowRecord(int recordId, User user, Book book,
+                        LocalDate issueDate, LocalDate dueDate,
+                        LocalDate returnDate) {
+
         this.recordId = recordId;
         this.user = user;
         this.book = book;
@@ -21,35 +23,15 @@ public class BorrowRecord {
         this.returnDate = returnDate;
     }
 
-    public int getRecordId() {
-        return recordId;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
     public Book getBook() {
         return book;
     }
 
-    public LocalDate getIssueDate() {
-        return issueDate;
-    }
-
-    public LocalDate getDueDate() {
-        return dueDate;
-    }
-
-    public LocalDate getReturnDate() {
-        return returnDate;
-    }
-
-    public void setReturnDate(LocalDate returnDate) {
-        this.returnDate = returnDate;
-    }
-
     public boolean isReturned() {
         return returnDate != null;
+    }
+
+    public void markAsReturned() {
+        this.returnDate = LocalDate.now();
     }
 }
