@@ -66,4 +66,11 @@ public class Book {
                 ", available=" + available +
                 '}';
     }
+    public void markAsIssued() {
+        this.available = false;
+    }
+
+    public void markAsAvailable() {
+        this.available = true;
+    }
 }
