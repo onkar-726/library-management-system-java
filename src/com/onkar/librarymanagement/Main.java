@@ -1,15 +1,13 @@
 package com.onkar.librarymanagement;
 
-import com.onkar.librarymanagement.exception.BookAlreadyIssuedException;
-import com.onkar.librarymanagement.exception.BookNotAvailableException;
-import com.onkar.librarymanagement.exception.BookNotFoundException;
-import com.onkar.librarymanagement.exception.UserNotFoundException;
-import com.onkar.librarymanagement.exception.DuplicateBookException;
+import com.onkar.librarymanagement.exception.*;
 import com.onkar.librarymanagement.model.Admin;
 import com.onkar.librarymanagement.model.Book;
 import com.onkar.librarymanagement.model.Student;
 import com.onkar.librarymanagement.model.User;
 import com.onkar.librarymanagement.service.LibraryService;
+import com.onkar.librarymanagement.exception.StudentBorrowLimitException;
+import com.onkar.librarymanagement.model.BorrowRecord;
 
 import java.util.Scanner;
 
@@ -53,6 +51,9 @@ public class Main {
             System.out.println("6. Find User");
             System.out.println("7. Issue Book");
             System.out.println("8. Return Book");
+            System.out.println("9. Add Student");
+            System.out.println("10. Borrowing History");
+            System.out.println("11. View Fine");
             System.out.println("0. Exit");
             System.out.println("======================================");
 
@@ -166,10 +167,12 @@ public class Main {
 
                     } catch (BookNotFoundException |
                              UserNotFoundException |
-                             BookNotAvailableException e) {
+                             BookNotAvailableException |
+                             StudentBorrowLimitException e) {
 
                         System.out.println("Error: " + e.getMessage());
                     }
+
                     break;
 
                 case 8:
@@ -193,6 +196,63 @@ public class Main {
                     } catch (BookNotFoundException e) {
                         System.out.println("Error: " + e.getMessage());
                     }
+                    break;
+                case 9:
+                    System.out.print("Enter Student ID: ");
+                    int studentId = scanner.nextInt();
+                    scanner.nextLine();
+
+                    System.out.print("Enter Student Name: ");
+                    String studentName = scanner.nextLine();
+
+                    Student newStudent = new Student(
+                            studentId,
+                            studentName
+                    );
+
+                    try {
+                        libraryService.addUser(newStudent);
+                        System.out.println("Student added successfully.");
+
+                    } catch (DuplicateUserException e) {
+                        System.out.println("Error: " + e.getMessage());
+                    }
+
+                    break;
+                case 10:
+                    System.out.println("\n--- Borrowing History ---");
+                    libraryService.displayBorrowRecords();
+                    break;
+                case 11:
+                    System.out.print("Enter Book ID: ");
+                    int fineBookId = scanner.nextInt();
+
+                    try {
+                        Book book = libraryService.findBookById(fineBookId);
+
+                        boolean recordFound = false;
+
+                        for (BorrowRecord record : libraryService.getBorrowRecords()) {
+
+                            if (record.getBook().getId() == book.getId()) {
+
+                                System.out.println(
+                                        "Fine: ₹" + record.calculateFine()
+                                );
+
+                                recordFound = true;
+                                break;
+                            }
+                        }
+
+                        if (!recordFound) {
+                            System.out.println("No borrowing record found.");
+                        }
+
+                    } catch (BookNotFoundException e) {
+                        System.out.println("Error: " + e.getMessage());
+                    }
+
                     break;
 
                 case 0:

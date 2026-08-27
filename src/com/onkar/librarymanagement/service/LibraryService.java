@@ -1,4 +1,5 @@
 package com.onkar.librarymanagement.service;
+import com.onkar.librarymanagement.model.Student;
 import com.onkar.librarymanagement.model.User;
 import com.onkar.librarymanagement.model.Book;
 import com.onkar.librarymanagement.model.BorrowRecord;
@@ -7,6 +8,8 @@ import com.onkar.librarymanagement.exception.UserNotFoundException;
 import com.onkar.librarymanagement.exception.BookNotAvailableException;
 import com.onkar.librarymanagement.exception.BookAlreadyIssuedException;
 import com.onkar.librarymanagement.exception.DuplicateBookException;
+import com.onkar.librarymanagement.exception.DuplicateUserException;
+import com.onkar.librarymanagement.exception.StudentBorrowLimitException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,9 +69,25 @@ public class LibraryService {
     }
 
     public void addUser(User user) {
+
+        if (findUserByIdWithoutException(user.getId()) != null) {
+            throw new DuplicateUserException(
+                    "User with ID " + user.getId() + " already exists"
+            );
+        }
+
         users.add(user);
     }
+    private User findUserByIdWithoutException(int id) {
 
+        for (User user : users) {
+            if (user.getId() == id) {
+                return user;
+            }
+        }
+
+        return null;
+    }
     public void displayAllUsers() {
         for (User user : users) {
             user.showRole();
@@ -90,7 +109,17 @@ public class LibraryService {
 
         Book book = findBookById(bookId);
         User user = findUserById(userId);
+        if (user instanceof Student) {
 
+            Student student = (Student) user;
+
+            if (student.getBorrowedBooks() >= 3) {
+                throw new StudentBorrowLimitException(
+                        "Student " + student.getName()
+                                + " has already borrowed 3 books"
+                );
+            }
+        }
         if (!book.isAvailable()) {
             throw new BookNotAvailableException(
                     "Book with ID " + bookId + " is already issued"
@@ -109,7 +138,10 @@ public class LibraryService {
         borrowRecords.add(record);
 
         book.markAsIssued();
-
+        if (user instanceof Student) {
+            Student student = (Student) user;
+            student.borrowBook();
+        }
         return true;
     }
     public boolean returnBook(int bookId) {
@@ -124,10 +156,32 @@ public class LibraryService {
                 record.markAsReturned();
                 book.markAsAvailable();
 
+                User user = record.getUser();
+
+                if (user instanceof Student) {
+                    Student student = (Student) user;
+                    student.returnBook();
+                }
+
                 return true;
             }
         }
 
         return false;
+    }
+    public void displayBorrowRecords() {
+
+        if (borrowRecords.isEmpty()) {
+            System.out.println("No borrowing records found.");
+            return;
+        }
+
+        for (BorrowRecord record : borrowRecords) {
+            System.out.println(record);
+        }
+    }
+
+    public List<BorrowRecord> getBorrowRecords() {
+        return borrowRecords;
     }
 }
