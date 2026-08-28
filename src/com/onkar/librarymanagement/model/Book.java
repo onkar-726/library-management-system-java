@@ -1,6 +1,7 @@
 package com.onkar.librarymanagement.model;
 
 public class Book {
+
     private int id;
     private String title;
     private String author;
@@ -13,7 +14,6 @@ public class Book {
         this.author = author;
         this.category = category;
         this.available = true;
-
     }
 
     public int getId() {
@@ -52,8 +52,12 @@ public class Book {
         return available;
     }
 
-    public void setAvailable(boolean available) {
-        this.available = available;
+    public void markAsIssued() {
+        this.available = false;
+    }
+
+    public void markAsAvailable() {
+        this.available = true;
     }
 
     @Override
@@ -65,12 +69,5 @@ public class Book {
                 ", category='" + category + '\'' +
                 ", available=" + available +
                 '}';
-    }
-    public void markAsIssued() {
-        this.available = false;
-    }
-
-    public void markAsAvailable() {
-        this.available = true;
     }
 }

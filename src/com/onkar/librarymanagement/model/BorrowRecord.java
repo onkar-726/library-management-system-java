@@ -1,6 +1,7 @@
 package com.onkar.librarymanagement.model;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 public class BorrowRecord {
 
@@ -11,9 +12,13 @@ public class BorrowRecord {
     private LocalDate dueDate;
     private LocalDate returnDate;
 
-    public BorrowRecord(int recordId, User user, Book book,
-                        LocalDate issueDate, LocalDate dueDate,
-                        LocalDate returnDate) {
+    public BorrowRecord(
+            int recordId,
+            User user,
+            Book book,
+            LocalDate issueDate,
+            LocalDate dueDate,
+            LocalDate returnDate) {
 
         this.recordId = recordId;
         this.user = user;
@@ -23,34 +28,38 @@ public class BorrowRecord {
         this.returnDate = returnDate;
     }
 
+    public int getRecordId() {
+        return recordId;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
     public Book getBook() {
         return book;
     }
 
-    public boolean isReturned() {
+    public LocalDate getIssueDate() {
+        return issueDate;
+    }
 
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+
+    public LocalDate getReturnDate() {
+        return returnDate;
+    }
+
+    public boolean isReturned() {
         return returnDate != null;
     }
 
     public void markAsReturned() {
-
         this.returnDate = LocalDate.now();
     }
-    public User getUser() {
-        return user;
-    }
-    @Override
-    public String toString() {
-        return "BorrowRecord{" +
-                "recordId=" + recordId +
-                ", user=" + user.getName() +
-                ", book=" + book.getTitle() +
-                ", issueDate=" + issueDate +
-                ", dueDate=" + dueDate +
-                ", returnDate=" + returnDate +
-                ", fine=₹" + calculateFine() +
-                '}';
-    }
+
     public long calculateFine() {
 
         if (returnDate == null) {
@@ -58,7 +67,8 @@ public class BorrowRecord {
         }
 
         if (returnDate.isAfter(dueDate)) {
-            long lateDays = java.time.temporal.ChronoUnit.DAYS.between(
+
+            long lateDays = ChronoUnit.DAYS.between(
                     dueDate,
                     returnDate
             );
@@ -67,5 +77,28 @@ public class BorrowRecord {
         }
 
         return 0;
+    }
+
+    @Override
+    public String toString() {
+
+        String status;
+
+        if (isReturned()) {
+            status = "RETURNED";
+        } else {
+            status = "BORROWED";
+        }
+
+        return "BorrowRecord{" +
+                "recordId=" + recordId +
+                ", user=" + user.getName() +
+                ", book=" + book.getTitle() +
+                ", issueDate=" + issueDate +
+                ", dueDate=" + dueDate +
+                ", returnDate=" + returnDate +
+                ", status=" + status +
+                ", fine=₹" + calculateFine() +
+                '}';
     }
 }

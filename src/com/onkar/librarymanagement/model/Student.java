@@ -1,10 +1,13 @@
 package com.onkar.librarymanagement.model;
 
 public class Student extends User {
+
     private int borrowedBooks = 0;
+
     public Student(int id, String name) {
         super(id, name);
     }
+
     public int getBorrowedBooks() {
         return borrowedBooks;
     }
@@ -18,8 +21,18 @@ public class Student extends User {
             borrowedBooks--;
         }
     }
+
     @Override
     public void showRole() {
         System.out.println("Student");
+    }
+
+    @Override
+    public String toString() {
+        return "Student{" +
+                "id=" + getId() +
+                ", name='" + getName() + '\'' +
+                ", borrowedBooks=" + borrowedBooks +
+                '}';
     }
 }
